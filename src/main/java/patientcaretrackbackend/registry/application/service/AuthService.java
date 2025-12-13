@@ -9,8 +9,6 @@ import patientcaretrackbackend.registry.domain.model.User;
 import patientcaretrackbackend.registry.domain.port.UserRepository;
 import patientcaretrackbackend.shared.security.JwtService;
 
-import java.util.NoSuchElementException;
-
 @Service
 @RequiredArgsConstructor
 public class AuthService implements AuthUseCase {
@@ -21,6 +19,9 @@ public class AuthService implements AuthUseCase {
 
     @Override
     public void register(String username, String rawPassword, Role role) {
+        if (userRepository.findByUsername(username).isPresent()) {
+            throw new IllegalArgumentException("El usuario ya existe: " + username);
+        }
         User user = User.builder()
                 .username(username)
                 .passwordHash(passwordEncoder.encode(rawPassword))
@@ -32,15 +33,17 @@ public class AuthService implements AuthUseCase {
     @Override
     public String login(String username, String rawPassword) {
         User user = userRepository.findByUsername(username)
-                .orElseThrow(() -> new NoSuchElementException("User not found"));
+                .orElseThrow(() -> new IllegalArgumentException("Usuario o contraseña incorrectos"));
+
         if (!passwordEncoder.matches(rawPassword, user.getPasswordHash())) {
-            throw new IllegalArgumentException("Bad credentials");
+            throw new IllegalArgumentException("Usuario o contraseña incorrectos");
         }
+
         return jwtService.generateToken(username);
     }
 
     @Override
-    public User getByUsername(String username) {
-        return userRepository.findByUsername(username).orElseThrow();
+    public void deleteUser(Long userId) {
+        userRepository.deleteById(userId);
     }
 }

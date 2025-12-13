@@ -5,7 +5,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import patientcaretrackbackend.patients.application.usecase.PacienteUseCase;
 import patientcaretrackbackend.patients.domain.model.Paciente;
+import patientcaretrackbackend.patients.infrastructure.web.dto.PacienteUpdateParcialRequest;
 
+import java.security.Principal;
 import java.util.List;
 
 @RestController
@@ -17,28 +19,21 @@ public class PacienteController {
     private final PacienteUseCase pacienteUseCase;
 
     @GetMapping
-    public List<Paciente> all() {
-        return pacienteUseCase.all();
+    public List<Paciente> list(Principal principal) {
+        return pacienteUseCase.allForUser(principal.getName());
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Paciente> one(@PathVariable Long id) {
-        return ResponseEntity.ok(pacienteUseCase.get(id));
+    public ResponseEntity<Paciente> one(@PathVariable Long id, Principal principal) {
+        return ResponseEntity.ok(pacienteUseCase.getForUser(id, principal.getName()));
     }
 
-    @PostMapping
-    public Paciente create(@RequestBody Paciente p) {
-        return pacienteUseCase.create(p);
-    }
-
-    @PutMapping("/{id}")
-    public ResponseEntity<Paciente> update(@PathVariable Long id, @RequestBody Paciente p) {
-        return ResponseEntity.ok(pacienteUseCase.update(id, p));
-    }
-
-    @DeleteMapping("/{id}")
-    public ResponseEntity<Void> delete(@PathVariable Long id) {
-        pacienteUseCase.delete(id);
-        return ResponseEntity.noContent().build();
+    @PatchMapping("/{id}")
+    public ResponseEntity<Paciente> updatePartial(
+            @PathVariable Long id,
+            @RequestBody PacienteUpdateParcialRequest req,
+            Principal principal
+    ) {
+        return ResponseEntity.ok(pacienteUseCase.updatePartial(id, req, principal.getName()));
     }
 }

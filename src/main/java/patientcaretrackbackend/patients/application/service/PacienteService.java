@@ -5,6 +5,11 @@ import org.springframework.stereotype.Service;
 import patientcaretrackbackend.patients.application.usecase.PacienteUseCase;
 import patientcaretrackbackend.patients.domain.model.Paciente;
 import patientcaretrackbackend.patients.domain.port.PacienteRepository;
+import patientcaretrackbackend.patients.infrastructure.web.dto.PacienteUpdateParcialRequest;
+import patientcaretrackbackend.registry.domain.model.Role;
+import patientcaretrackbackend.registry.domain.model.User;
+import patientcaretrackbackend.registry.domain.port.UserRepository;
+
 import java.util.List;
 
 @Service
@@ -12,7 +17,9 @@ import java.util.List;
 public class PacienteService implements PacienteUseCase {
 
     private final PacienteRepository pacienteRepository;
+    private final UserRepository userRepository;
 
+    // CRUD genérico (usado por admin)
     @Override
     public List<Paciente> all() {
         return pacienteRepository.findAll();
@@ -20,7 +27,8 @@ public class PacienteService implements PacienteUseCase {
 
     @Override
     public Paciente get(Long id) {
-        return pacienteRepository.findById(id).orElseThrow();
+        return pacienteRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Paciente no encontrado: " + id));
     }
 
     @Override
@@ -30,18 +38,73 @@ public class PacienteService implements PacienteUseCase {
 
     @Override
     public Paciente update(Long id, Paciente p) {
-        Paciente existing = pacienteRepository.findById(id).orElseThrow();
-        existing.setNombre(p.getNombre());
-        existing.setEdad(p.getEdad());
-        existing.setDatosMedicos(p.getDatosMedicos());
-        return pacienteRepository.save(existing);
+        Paciente existing = get(id);
+        p.setId(existing.getId());
+        // Conservamos assignedUserId si no viene en el request
+        if (p.getAssignedUserId() == null) {
+            p.setAssignedUserId(existing.getAssignedUserId());
+        }
+        return pacienteRepository.save(p);
     }
 
     @Override
     public void delete(Long id) {
-        if (!pacienteRepository.existsById(id)) {
-            throw new RuntimeException("Paciente not found");
-        }
         pacienteRepository.deleteById(id);
+    }
+
+    // Métodos conscientes del usuario logado
+
+    @Override
+    public List<Paciente> allForUser(String username) {
+        User user = getUserByUsername(username);
+        if (user.getRole() == Role.ADMIN) {
+            return pacienteRepository.findAll();
+        }
+        return pacienteRepository.findByAssignedUserId(user.getId());
+    }
+
+    @Override
+    public Paciente getForUser(Long id, String username) {
+        User user = getUserByUsername(username);
+        Paciente paciente = get(id);
+
+        if (user.getRole() == Role.ADMIN) {
+            return paciente;
+        }
+
+        if (paciente.getAssignedUserId() == null || !paciente.getAssignedUserId().equals(user.getId())) {
+            throw new IllegalArgumentException("Paciente no pertenece a este usuario");
+        }
+
+        return paciente;
+    }
+
+    @Override
+    public void assignPaciente(Long pacienteId, Long userId) {
+        Paciente paciente = get(pacienteId);
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new IllegalArgumentException("Usuario no encontrado: " + userId));
+
+        paciente.setAssignedUserId(user.getId());
+        pacienteRepository.save(paciente);
+    }
+
+    @Override
+    public Paciente updatePartial(Long id, PacienteUpdateParcialRequest req, String username) {
+        User user = getUserByUsername(username);
+        Paciente paciente = getForUser(id, username); // ya valida pertenencia
+
+        // Aquí lo profesional sería crear un Registro diario, pero de momento
+        // asumimos que el paciente tiene campos para estado actual.
+        // Puedes adaptar esto si decides modelarlo con Registro.
+
+        // TODO: mapear campos del request a los campos adecuados
+        // ahora mismo solo devolvemos el mismo paciente sin cambios
+        return paciente;
+    }
+
+    private User getUserByUsername(String username) {
+        return userRepository.findByUsername(username)
+                .orElseThrow(() -> new IllegalArgumentException("Usuario no encontrado: " + username));
     }
 }

@@ -1,15 +1,22 @@
 package patientcaretrackbackend.patients.domain.model;
 
-import lombok.*;
+import lombok.Builder;
+import lombok.Data;
 
-@Getter
-@Setter
-@NoArgsConstructor
-@AllArgsConstructor
+@Data
 @Builder
 public class Paciente {
+
     private Long id;
+
     private String nombre;
-    private int edad;
-    private String datosMedicos;
+    private Integer edad;
+    private String historialMedico;
+    private String observacionesGenerales;
+
+    // Imagen (el front puede mandar una URL o nombre de fichero)
+    private String imageUrl;
+
+    // Usuario asignado (en dominio, referencia por id)
+    private Long assignedUserId;
 }

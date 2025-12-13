@@ -1,19 +1,51 @@
 package patientcaretrackbackend.patients.infrastructure.persistence.adapter;
 
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 import patientcaretrackbackend.patients.domain.model.Paciente;
 import patientcaretrackbackend.patients.domain.port.PacienteRepository;
-import patientcaretrackbackend.shared.persistence.AbstractJpaCrudAdapter;
-import patientcaretrackbackend.patients.infrastructure.persistence.entity.PacienteEntity;
 import patientcaretrackbackend.patients.infrastructure.persistence.mapper.PacienteMapper;
 import patientcaretrackbackend.patients.infrastructure.persistence.spring.PacienteJpaRepository;
 
-@Repository
-public class PacienteRepositoryAdapter
-        extends AbstractJpaCrudAdapter<Paciente, PacienteEntity, Long, PacienteJpaRepository>
-        implements PacienteRepository {
+import java.util.List;
+import java.util.Optional;
 
-    public PacienteRepositoryAdapter(PacienteJpaRepository repo) {
-        super(repo, new PacienteMapper());
+@Repository
+@RequiredArgsConstructor
+public class PacienteRepositoryAdapter implements PacienteRepository {
+
+    private final PacienteJpaRepository jpaRepository;
+    private final PacienteMapper mapper;
+
+    @Override
+    public List<Paciente> findAll() {
+        return jpaRepository.findAll()
+                .stream()
+                .map(mapper::toDomain)
+                .toList();
+    }
+
+    @Override
+    public Optional<Paciente> findById(Long id) {
+        return jpaRepository.findById(id).map(mapper::toDomain);
+    }
+
+    @Override
+    public Paciente save(Paciente paciente) {
+        var saved = jpaRepository.save(mapper.toEntity(paciente));
+        return mapper.toDomain(saved);
+    }
+
+    @Override
+    public void deleteById(Long id) {
+        jpaRepository.deleteById(id);
+    }
+
+    @Override
+    public List<Paciente> findByAssignedUserId(Long userId) {
+        return jpaRepository.findByAssignedUserId(userId)
+                .stream()
+                .map(mapper::toDomain)
+                .toList();
     }
 }
