@@ -30,8 +30,20 @@ public class SecurityConfig {
                 .csrf(csrf -> csrf.disable())
                 .sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
-                        // SOLO login público
+
+                        // Swagger / OpenAPI (público)
+                        .requestMatchers(
+                                "/swagger-ui.html",
+                                "/swagger-ui/**",
+                                "/v3/api-docs/**",
+                                "/webjars/**"
+                        ).permitAll()
+
+                        // LOGIN público
                         .requestMatchers(HttpMethod.POST, "/auth/login").permitAll()
+
+                        // register NO público (solo si tú lo expones a admin)
+                        // .requestMatchers(HttpMethod.POST, "/auth/register").hasRole("ADMIN")
 
                         // Zona admin
                         .requestMatchers("/admin/**").hasRole("ADMIN")
@@ -40,9 +52,10 @@ public class SecurityConfig {
                         .requestMatchers("/pacientes/**").authenticated()
                         .requestMatchers("/registros/**").authenticated()
 
-                        // Todo lo demás: denegado
+                        // To do lo demás: denegado
                         .anyRequest().denyAll()
                 )
+
                 .authenticationProvider(authenticationProvider())
                 .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
 

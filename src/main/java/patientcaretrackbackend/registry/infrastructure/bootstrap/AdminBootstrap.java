@@ -18,7 +18,7 @@ public class AdminBootstrap {
     @PostConstruct
     public void init() {
         String adminUsername = "doctor";
-        String adminPassword = "1234"; // cámbialo si quieres
+        String adminPassword = "1234";
 
         userRepository.findByUsername(adminUsername)
                 .ifPresentOrElse(
