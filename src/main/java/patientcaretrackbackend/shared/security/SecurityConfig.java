@@ -41,17 +41,11 @@ public class SecurityConfig {
 
                         // LOGIN público
                         .requestMatchers(HttpMethod.POST, "/auth/login").permitAll()
-
-                        // register NO público (solo si tú lo expones a admin)
-                        // .requestMatchers(HttpMethod.POST, "/auth/register").hasRole("ADMIN")
-
                         // Zona admin
                         .requestMatchers("/admin/**").hasRole("ADMIN")
-
                         // Pacientes y registros: autenticado (USER o ADMIN)
-                        .requestMatchers("/pacientes/**").authenticated()
-                        .requestMatchers("/registros/**").authenticated()
-
+                        .requestMatchers("/pacientes", "/pacientes/**").authenticated()
+                        .requestMatchers("/registros", "/registros/**").authenticated()
                         // To do lo demás: denegado
                         .anyRequest().denyAll()
                 )
