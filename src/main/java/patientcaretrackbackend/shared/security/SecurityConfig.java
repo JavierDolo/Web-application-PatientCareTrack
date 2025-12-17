@@ -46,6 +46,8 @@ public class SecurityConfig {
                         // Pacientes y registros: autenticado (USER o ADMIN)
                         .requestMatchers("/pacientes", "/pacientes/**").authenticated()
                         .requestMatchers("/registros", "/registros/**").authenticated()
+                        .requestMatchers("/api/me").authenticated()
+
                         // To do lo demás: denegado
                         .anyRequest().denyAll()
                 )
