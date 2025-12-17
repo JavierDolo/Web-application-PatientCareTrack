@@ -1,4 +1,4 @@
-package patientcaretrackbackend.patients.infrastructure.persistence.mapper.mapper;
+package patientcaretrackbackend.registry.infrastructure.persistence.mapper;
 
 import patientcaretrackbackend.registry.domain.model.User;
 import patientcaretrackbackend.registry.infrastructure.persistence.entity.UserEntity;

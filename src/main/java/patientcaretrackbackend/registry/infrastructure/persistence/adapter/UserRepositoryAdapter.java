@@ -5,7 +5,7 @@ import patientcaretrackbackend.shared.persistence.AbstractJpaCrudAdapter;
 import patientcaretrackbackend.registry.domain.model.User;
 import patientcaretrackbackend.registry.domain.port.UserRepository;
 import patientcaretrackbackend.registry.infrastructure.persistence.entity.UserEntity;
-import patientcaretrackbackend.patients.infrastructure.persistence.mapper.mapper.UserMapper;
+import patientcaretrackbackend.registry.infrastructure.persistence.mapper.UserMapper;
 import patientcaretrackbackend.registry.infrastructure.persistence.spring.UserJpaRepository;
 
 import java.util.Optional;
