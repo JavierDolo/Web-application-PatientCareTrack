@@ -32,9 +32,22 @@ public class PacienteRepositoryAdapter implements PacienteRepository {
 
     @Override
     public Paciente save(Paciente paciente) {
+
+        // UPDATE (merge)
+        if (paciente.getId() != null && jpaRepository.existsById(paciente.getId())) {
+            var entity = jpaRepository.findById(paciente.getId())
+                    .orElseThrow(() -> new RuntimeException("Paciente not found: " + paciente.getId()));
+
+            mapper.updateEntity(entity, paciente);
+            var saved = jpaRepository.save(entity);
+            return mapper.toDomain(saved);
+        }
+
+        // CREATE
         var saved = jpaRepository.save(mapper.toEntity(paciente));
         return mapper.toDomain(saved);
     }
+
 
     @Override
     public void deleteById(Long id) {
