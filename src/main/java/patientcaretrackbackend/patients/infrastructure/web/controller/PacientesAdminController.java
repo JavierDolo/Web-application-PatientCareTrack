@@ -5,26 +5,32 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+import patientcaretrackbackend.patients.application.dto.PacienteDetailDto;
 import patientcaretrackbackend.patients.application.usecase.PacienteUseCase;
-import patientcaretrackbackend.patients.domain.model.Paciente;
+import patientcaretrackbackend.patients.infrastructure.web.dto.PacienteCreateRequest;
+import patientcaretrackbackend.patients.infrastructure.web.dto.PacienteUpdateRequest;
+import patientcaretrackbackend.patients.infrastructure.web.mapper.PacienteDtoMapper;
 
 @RestController
 @RequestMapping("/admin/pacientes")
 @RequiredArgsConstructor
-@PreAuthorize("hasRole('ADMIN')")
 @CrossOrigin
+@PreAuthorize("hasRole('ADMIN')")
 public class PacientesAdminController {
 
     private final PacienteUseCase pacienteUseCase;
+    private final PacienteDtoMapper dtoMapper;
 
     @PostMapping
-    public ResponseEntity<Paciente> create(@RequestBody Paciente p) {
-        return ResponseEntity.status(HttpStatus.CREATED).body(pacienteUseCase.create(p));
+    public ResponseEntity<PacienteDetailDto> create(@RequestBody PacienteCreateRequest req) {
+        var created = pacienteUseCase.create(dtoMapper.fromCreateRequest(req));
+        return ResponseEntity.status(HttpStatus.CREATED).body(dtoMapper.toDetailDto(created));
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Paciente> update(@PathVariable Long id, @RequestBody Paciente p) {
-        return ResponseEntity.ok(pacienteUseCase.update(id, p));
+    public ResponseEntity<PacienteDetailDto> update(@PathVariable Long id, @RequestBody PacienteUpdateRequest req) {
+        var updated = pacienteUseCase.update(id, dtoMapper.fromUpdateRequest(id, req));
+        return ResponseEntity.ok(dtoMapper.toDetailDto(updated));
     }
 
     @DeleteMapping("/{id}")
