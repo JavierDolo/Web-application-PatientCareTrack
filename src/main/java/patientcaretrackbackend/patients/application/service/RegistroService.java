@@ -27,4 +27,14 @@ public class RegistroService implements RegistroUseCase {
     public List<Registro> findByPacienteId(Long pacienteId) {
         return registroRepository.findByPacienteId(pacienteId);
     }
+
+    @Override
+    public List<Registro> findByPacienteIdAndBetween(
+            Long pacienteId,
+            Instant from,
+            Instant to
+    ) {
+        return registroRepository.findByPacienteIdAndBetween(pacienteId, from, to);
+    }
+
 }

@@ -7,6 +7,7 @@ import patientcaretrackbackend.patients.domain.port.RegistroRepository;
 import patientcaretrackbackend.patients.infrastructure.persistence.mapper.RegistroMapper;
 import patientcaretrackbackend.patients.infrastructure.persistence.spring.RegistroJpaRepository;
 
+import java.time.Instant;
 import java.util.List;
 
 @Repository
@@ -26,4 +27,16 @@ public class RegistroRepositoryAdapter implements RegistroRepository {
     public List<Registro> findByPacienteId(Long pacienteId) {
         return mapper.toDomainList(repo.findByPacienteId(pacienteId));
     }
+
+    @Override
+    public List<Registro> findByPacienteIdAndBetween(
+            Long pacienteId,
+            Instant from,
+            Instant to
+    ) {
+        return mapper.toDomainList(
+                repo.findByPacienteIdAndCreatedAtBetween(pacienteId, from, to)
+        );
+    }
+
 }
