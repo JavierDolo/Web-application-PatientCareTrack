@@ -5,7 +5,6 @@ import patientcaretrackbackend.patients.domain.model.DeposicionCalidad;
 import patientcaretrackbackend.patients.domain.model.TipoRegistro;
 
 public record RegistroRequest(
-        Long pacienteId,
         TipoRegistro tipo,
         String comentario,
         Boolean hizoDeposicion,

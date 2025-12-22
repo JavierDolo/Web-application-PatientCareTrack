@@ -8,7 +8,6 @@ import org.springframework.web.bind.annotation.*;
 import patientcaretrackbackend.registry.application.dto.UserSummaryDto;
 import patientcaretrackbackend.registry.application.usecase.AdminUserUseCase;
 import patientcaretrackbackend.registry.application.usecase.AuthUseCase;
-import patientcaretrackbackend.registry.domain.model.Role;
 import patientcaretrackbackend.registry.infrastructure.web.dto.RegisterRequest;
 
 import java.util.List;
@@ -18,25 +17,15 @@ import java.util.List;
 @RequiredArgsConstructor
 @PreAuthorize("hasRole('ADMIN')")
 @CrossOrigin
-public class UserAdminController {
+public class AdminUsersController {
 
     private final AuthUseCase authUseCase;
     private final AdminUserUseCase adminUserUseCase;
 
     @PostMapping
-    public ResponseEntity<Void> createUser(@RequestBody RegisterRequest request) {
-        authUseCase.register(
-                request.username(),
-                request.password(),
-                request.role()
-        );
+    public ResponseEntity<Void> create(@RequestBody RegisterRequest request) {
+        authUseCase.register(request.username(), request.password(), request.role());
         return ResponseEntity.status(HttpStatus.CREATED).build();
-    }
-
-    @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteUser(@PathVariable Long id) {
-        authUseCase.deleteUser(id);
-        return ResponseEntity.noContent().build();
     }
 
     @GetMapping
@@ -45,7 +34,13 @@ public class UserAdminController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<UserSummaryDto> one(@PathVariable Long id) {
+    public ResponseEntity<UserSummaryDto> one(@PathVariable("id") Long id) {
         return ResponseEntity.ok(adminUserUseCase.get(id));
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> delete(@PathVariable("id") Long id) {
+        authUseCase.deleteUser(id);
+        return ResponseEntity.noContent().build();
     }
 }

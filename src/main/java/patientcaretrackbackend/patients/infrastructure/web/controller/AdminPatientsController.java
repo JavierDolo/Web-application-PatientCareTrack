@@ -11,12 +11,14 @@ import patientcaretrackbackend.patients.infrastructure.web.dto.PacienteCreateReq
 import patientcaretrackbackend.patients.infrastructure.web.dto.PacienteUpdateRequest;
 import patientcaretrackbackend.patients.infrastructure.web.mapper.PacienteDtoMapper;
 
+import java.util.List;
+
 @RestController
-@RequestMapping("/admin/pacientes")
+@RequestMapping("/admin/patients")
 @RequiredArgsConstructor
 @CrossOrigin
 @PreAuthorize("hasRole('ADMIN')")
-public class PacientesAdminController {
+public class AdminPatientsController {
 
     private final PacienteUseCase pacienteUseCase;
     private final PacienteDtoMapper dtoMapper;
@@ -28,20 +30,32 @@ public class PacientesAdminController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<PacienteDetailDto> update(@PathVariable Long id, @RequestBody PacienteUpdateRequest req) {
+    public ResponseEntity<PacienteDetailDto> update(@PathVariable("id") Long id, @RequestBody PacienteUpdateRequest req) {
         var updated = pacienteUseCase.update(id, dtoMapper.fromUpdateRequest(id, req));
         return ResponseEntity.ok(dtoMapper.toDetailDto(updated));
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> delete(@PathVariable Long id) {
+    public ResponseEntity<Void> delete(@PathVariable("id") Long id) {
         pacienteUseCase.delete(id);
         return ResponseEntity.noContent().build();
     }
 
     @PutMapping("/{id}/assign/{userId}")
-    public ResponseEntity<Void> assign(@PathVariable Long id, @PathVariable Long userId) {
+    public ResponseEntity<Void> assign(@PathVariable("id") Long id, @PathVariable("userId") Long userId) {
         pacienteUseCase.assignPaciente(id, userId);
         return ResponseEntity.noContent().build();
     }
+    @GetMapping
+    public List<PacienteDetailDto> all() {
+        return pacienteUseCase.all().stream()
+                .map(dtoMapper::toDetailDto)
+                .toList();
+    }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<PacienteDetailDto> one(@PathVariable("id") Long id) {
+        return ResponseEntity.ok(dtoMapper.toDetailDto(pacienteUseCase.get(id)));
+    }
+
 }

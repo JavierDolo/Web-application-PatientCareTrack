@@ -1,9 +1,11 @@
 package patientcaretrackbackend.patients.infrastructure.persistence.mapper;
 
+import org.springframework.stereotype.Component;
 import patientcaretrackbackend.patients.domain.model.Registro;
 import patientcaretrackbackend.patients.infrastructure.persistence.entity.RegistroEntity;
 import patientcaretrackbackend.shared.persistence.mapper.Mapper;
 
+@Component
 public class RegistroMapper implements Mapper<Registro, RegistroEntity> {
 
     @Override

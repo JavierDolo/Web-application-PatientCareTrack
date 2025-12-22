@@ -41,17 +41,19 @@ public class SecurityConfig {
 
                         // LOGIN público
                         .requestMatchers(HttpMethod.POST, "/auth/login").permitAll()
-                        // Zona admin
-                        .requestMatchers("/admin/**").hasRole("ADMIN")
-                        // Pacientes y registros: autenticado (USER o ADMIN)
-                        .requestMatchers("/pacientes", "/pacientes/**").authenticated()
-                        .requestMatchers("/registros", "/registros/**").authenticated()
-                        .requestMatchers("/api/me").authenticated()
 
-                        // To do lo demás: denegado
+                        // ADMIN
+                        .requestMatchers("/admin/**").hasRole("ADMIN")
+
+                        // USER/ADMIN autenticado
+                        .requestMatchers("/me/**").authenticated()
+
+                        // (Opcional) healthcheck si lo tienes
+                        // .requestMatchers("/actuator/health").permitAll()
+
+                        // todo lo demás denegado
                         .anyRequest().denyAll()
                 )
-
                 .authenticationProvider(authenticationProvider())
                 .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
 
@@ -67,9 +69,7 @@ public class SecurityConfig {
     }
 
     @Bean
-    public PasswordEncoder passwordEncoder() {
-        return new BCryptPasswordEncoder();
-    }
+    public PasswordEncoder passwordEncoder() { return new BCryptPasswordEncoder(); }
 
     @Bean
     public AuthenticationManager authenticationManager(AuthenticationConfiguration config) throws Exception {
