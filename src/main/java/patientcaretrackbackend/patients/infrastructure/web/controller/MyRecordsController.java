@@ -16,6 +16,7 @@ import patientcaretrackbackend.patients.infrastructure.web.dto.records.RegistroC
 import patientcaretrackbackend.patients.infrastructure.web.dto.records.RegistroDeposicionRequest;
 import patientcaretrackbackend.patients.infrastructure.web.dto.records.RegistroLiquidosRequest;
 import patientcaretrackbackend.registry.domain.port.UserRepository;
+import patientcaretrackbackend.shared.exception.NotFoundException;
 
 import java.time.Instant;
 
@@ -42,7 +43,7 @@ public class MyRecordsController {
 
         // 2) userId real
         Long userId = userRepository.findByUsername(username)
-                .orElseThrow(() -> new RuntimeException("User not found: " + username))
+                .orElseThrow(() -> new NotFoundException("User not found: " + username))
                 .getId();
 
         // 3) construir registro

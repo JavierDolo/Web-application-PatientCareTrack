@@ -7,11 +7,12 @@ import java.util.List;
 
 public interface RegistroRepository {
     Registro save(Registro registro);
+
     List<Registro> findByPacienteId(Long pacienteId);
-    List<Registro> findByPacienteIdAndBetween(
+
+    List<Registro> findByPacienteIdAndCreatedAtBetween(
             Long pacienteId,
             Instant from,
             Instant to
     );
-
 }

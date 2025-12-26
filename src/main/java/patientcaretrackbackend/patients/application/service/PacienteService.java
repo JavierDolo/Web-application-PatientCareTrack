@@ -9,6 +9,8 @@ import patientcaretrackbackend.patients.infrastructure.web.dto.PacienteUpdatePar
 import patientcaretrackbackend.registry.domain.model.Role;
 import patientcaretrackbackend.registry.domain.model.User;
 import patientcaretrackbackend.registry.domain.port.UserRepository;
+import patientcaretrackbackend.shared.exception.ForbiddenException;
+import patientcaretrackbackend.shared.exception.NotFoundException;
 
 import java.util.List;
 
@@ -28,7 +30,7 @@ public class PacienteService implements PacienteUseCase {
     @Override
     public Paciente get(Long id) {
         return pacienteRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("Paciente no encontrado: " + id));
+                .orElseThrow(() -> new NotFoundException("Paciente no encontrado: " + id));
     }
 
     @Override
@@ -49,6 +51,8 @@ public class PacienteService implements PacienteUseCase {
 
     @Override
     public void delete(Long id) {
+        // fuerza 404 si no existe
+        get(id);
         pacienteRepository.deleteById(id);
     }
 
@@ -73,7 +77,7 @@ public class PacienteService implements PacienteUseCase {
         }
 
         if (paciente.getAssignedUserId() == null || !paciente.getAssignedUserId().equals(user.getId())) {
-            throw new IllegalArgumentException("Paciente no pertenece a este usuario");
+            throw new ForbiddenException("No tienes permisos para acceder a este paciente");
         }
 
         return paciente;
@@ -83,7 +87,7 @@ public class PacienteService implements PacienteUseCase {
     public void assignPaciente(Long pacienteId, Long userId) {
         Paciente paciente = get(pacienteId);
         User user = userRepository.findById(userId)
-                .orElseThrow(() -> new IllegalArgumentException("Usuario no encontrado: " + userId));
+                .orElseThrow(() -> new NotFoundException("Usuario no encontrado: " + userId));
 
         paciente.setAssignedUserId(user.getId());
         pacienteRepository.save(paciente);
@@ -105,6 +109,6 @@ public class PacienteService implements PacienteUseCase {
 
     private User getUserByUsername(String username) {
         return userRepository.findByUsername(username)
-                .orElseThrow(() -> new IllegalArgumentException("Usuario no encontrado: " + username));
+                .orElseThrow(() -> new NotFoundException("Usuario no encontrado: " + username));
     }
 }

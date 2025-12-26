@@ -29,14 +29,9 @@ public class RegistroRepositoryAdapter implements RegistroRepository {
     }
 
     @Override
-    public List<Registro> findByPacienteIdAndBetween(
-            Long pacienteId,
-            Instant from,
-            Instant to
-    ) {
+    public List<Registro> findByPacienteIdAndCreatedAtBetween(Long pacienteId, Instant from, Instant to) {
         return mapper.toDomainList(
                 repo.findByPacienteIdAndCreatedAtBetween(pacienteId, from, to)
         );
     }
-
 }

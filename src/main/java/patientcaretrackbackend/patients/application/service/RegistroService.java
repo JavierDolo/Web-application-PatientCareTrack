@@ -34,7 +34,7 @@ public class RegistroService implements RegistroUseCase {
             Instant from,
             Instant to
     ) {
-        return registroRepository.findByPacienteIdAndBetween(pacienteId, from, to);
+        return registroRepository.findByPacienteIdAndCreatedAtBetween(pacienteId, from, to);
     }
 
 }
