@@ -37,15 +37,4 @@ public class PacienteMapper implements Mapper<Paciente, PacienteEntity> {
                 .assignedUserId(p.getAssignedUserId())
                 .build();
     }
-
-    @Override
-    public void updateEntity(PacienteEntity entity, Paciente domain) {
-        // NO tocamos ID aquí (lo gestiona JPA)
-        entity.setNombre(domain.getNombre());
-        entity.setEdad(domain.getEdad());
-        entity.setHistorialMedico(domain.getHistorialMedico());
-        entity.setObservacionesGenerales(domain.getObservacionesGenerales());
-        entity.setImageUrl(domain.getImageUrl());
-        entity.setAssignedUserId(domain.getAssignedUserId());
-    }
 }
