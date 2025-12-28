@@ -1,5 +1,6 @@
 package patientcaretrackbackend.registry.infrastructure.web.controller;
 
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -9,6 +10,7 @@ import patientcaretrackbackend.registry.application.dto.UserSummaryDto;
 import patientcaretrackbackend.registry.application.usecase.AdminUserUseCase;
 import patientcaretrackbackend.registry.application.usecase.AuthUseCase;
 import patientcaretrackbackend.registry.infrastructure.web.dto.RegisterRequest;
+import patientcaretrackbackend.registry.infrastructure.web.dto.ResetPasswordRequest;
 
 import java.util.List;
 
@@ -41,6 +43,15 @@ public class AdminUsersController {
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> delete(@PathVariable("id") Long id) {
         authUseCase.deleteUser(id);
+        return ResponseEntity.noContent().build();
+    }
+
+    @PutMapping("/{id}/password")
+    public ResponseEntity<Void> resetPassword(
+            @PathVariable("id") Long id,
+            @Valid @RequestBody ResetPasswordRequest req
+    ) {
+        adminUserUseCase.resetPassword(id, req.newPassword());
         return ResponseEntity.noContent().build();
     }
 }

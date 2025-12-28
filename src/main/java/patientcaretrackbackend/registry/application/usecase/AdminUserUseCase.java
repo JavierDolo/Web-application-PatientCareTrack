@@ -9,4 +9,6 @@ public interface AdminUserUseCase {
     List<UserSummaryDto> all();
 
     UserSummaryDto get(Long id);
+
+    void resetPassword(Long id, String newPassword);
 }
