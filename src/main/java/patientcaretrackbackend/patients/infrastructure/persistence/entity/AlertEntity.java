@@ -2,14 +2,15 @@ package patientcaretrackbackend.patients.infrastructure.persistence.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
+import patientcaretrackbackend.patients.domain.model.AlertStatus;
+import patientcaretrackbackend.patients.domain.model.AlertType;
 
 import java.time.Instant;
+import java.time.LocalDate;
 
 @Entity
-@Getter
-@Setter
-@NoArgsConstructor
-@AllArgsConstructor
+@Getter @Setter
+@NoArgsConstructor @AllArgsConstructor
 @Builder
 public class AlertEntity {
 
@@ -17,14 +18,23 @@ public class AlertEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private Long pacienteId;
+    @Enumerated(EnumType.STRING)
+    private AlertType type;
 
-    private Long generadoPorUserId;
+    @Enumerated(EnumType.STRING)
+    private AlertStatus status;
+
+    private Long pacienteId;
+    private Long createdByUserId;
 
     @Column(length = 1000)
-    private String mensaje;
+    private String message;
 
-    private boolean resuelta;
+    private LocalDate forDate;
+
+    @Column(length = 200, unique = true)
+    private String dedupeKey;
 
     private Instant createdAt;
+    private Instant resolvedAt;
 }

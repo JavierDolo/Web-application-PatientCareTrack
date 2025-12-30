@@ -1,12 +1,12 @@
 package patientcaretrackbackend.patients.infrastructure.web.controller;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
-import patientcaretrackbackend.patients.application.dto.AlertDto;
 import patientcaretrackbackend.patients.application.usecase.AlertUseCase;
+import patientcaretrackbackend.patients.domain.model.Alert;
 
-import java.time.LocalDate;
 import java.util.List;
 
 @RestController
@@ -19,8 +19,13 @@ public class AdminAlertsController {
     private final AlertUseCase alertUseCase;
 
     @GetMapping
-    public List<AlertDto> alerts(@RequestParam(required = false) String date) {
-        LocalDate d = (date == null) ? LocalDate.now() : LocalDate.parse(date);
-        return alertUseCase.alertsForDate(d);
+    public List<Alert> open() {
+        return alertUseCase.open();
+    }
+
+    @PatchMapping("/{id}/resolve")
+    public ResponseEntity<Void> resolve(@PathVariable("id") Long id) {
+        alertUseCase.resolve(id);
+        return ResponseEntity.noContent().build();
     }
 }

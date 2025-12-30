@@ -29,9 +29,25 @@ public class SecurityConfig {
         http
                 .csrf(csrf -> csrf.disable())
                 .sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                .authorizeHttpRequests(auth -> auth
 
-                        // Swagger / OpenAPI (público)
+                .exceptionHandling(ex -> ex
+                        .authenticationEntryPoint((req, res, e) -> {
+                            res.setStatus(401);
+                            res.setContentType("application/json");
+                            res.getWriter().write(
+                                    "{\"status\":401,\"error\":\"UNAUTHORIZED\",\"message\":\"Missing/invalid token\"}"
+                            );
+                        })
+                        .accessDeniedHandler((req, res, e) -> {
+                            res.setStatus(403);
+                            res.setContentType("application/json");
+                            res.getWriter().write(
+                                    "{\"status\":403,\"error\":\"FORBIDDEN\",\"message\":\"Access denied\"}"
+                            );
+                        })
+                )
+
+                .authorizeHttpRequests(auth -> auth
                         .requestMatchers(
                                 "/swagger-ui.html",
                                 "/swagger-ui/**",
@@ -39,19 +55,15 @@ public class SecurityConfig {
                                 "/webjars/**"
                         ).permitAll()
 
-                        // LOGIN público
                         .requestMatchers(HttpMethod.POST, "/auth/login").permitAll()
 
-                        // ADMIN
                         .requestMatchers("/admin/**").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.GET, "/me/**").authenticated()
+                        .requestMatchers(HttpMethod.POST, "/me/**").authenticated()
+                        .requestMatchers(HttpMethod.PATCH, "/me/**").authenticated()
+                        .requestMatchers(HttpMethod.PUT, "/me/**").authenticated()
+                        .requestMatchers(HttpMethod.DELETE, "/me/**").authenticated()
 
-                        // USER/ADMIN autenticado
-                        .requestMatchers("/me/**").authenticated()
-
-                        // (Opcional) healthcheck si lo tienes
-                        // .requestMatchers("/actuator/health").permitAll()
-
-                        // todo lo demás denegado
                         .anyRequest().denyAll()
                 )
                 .authenticationProvider(authenticationProvider())
@@ -75,4 +87,5 @@ public class SecurityConfig {
     public AuthenticationManager authenticationManager(AuthenticationConfiguration config) throws Exception {
         return config.getAuthenticationManager();
     }
+
 }

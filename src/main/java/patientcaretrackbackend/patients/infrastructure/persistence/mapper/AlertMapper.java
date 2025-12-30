@@ -11,11 +11,15 @@ public class AlertMapper implements Mapper<Alert, AlertEntity> {
         if (e == null) return null;
         return Alert.builder()
                 .id(e.getId())
+                .type(e.getType())
+                .status(e.getStatus())
                 .pacienteId(e.getPacienteId())
-                .generadoPorUserId(e.getGeneradoPorUserId())
-                .mensaje(e.getMensaje())
-                .resuelta(e.isResuelta())
+                .createdByUserId(e.getCreatedByUserId())
+                .message(e.getMessage())
+                .forDate(e.getForDate())
+                .dedupeKey(e.getDedupeKey())
                 .createdAt(e.getCreatedAt())
+                .resolvedAt(e.getResolvedAt())
                 .build();
     }
 
@@ -24,11 +28,15 @@ public class AlertMapper implements Mapper<Alert, AlertEntity> {
         if (d == null) return null;
         return AlertEntity.builder()
                 .id(d.getId())
+                .type(d.getType())
+                .status(d.getStatus())
                 .pacienteId(d.getPacienteId())
-                .generadoPorUserId(d.getGeneradoPorUserId())
-                .mensaje(d.getMensaje())
-                .resuelta(d.isResuelta())
+                .createdByUserId(d.getCreatedByUserId())
+                .message(d.getMessage())
+                .forDate(d.getForDate())
+                .dedupeKey(d.getDedupeKey())
                 .createdAt(d.getCreatedAt())
+                .resolvedAt(d.getResolvedAt())
                 .build();
     }
 }

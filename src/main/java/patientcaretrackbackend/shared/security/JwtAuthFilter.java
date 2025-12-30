@@ -5,6 +5,7 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpHeaders;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -15,6 +16,7 @@ import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
 
+@Slf4j
 @Component
 @RequiredArgsConstructor
 public class JwtAuthFilter extends OncePerRequestFilter {
@@ -31,25 +33,33 @@ public class JwtAuthFilter extends OncePerRequestFilter {
 
         final String authHeader = request.getHeader(HttpHeaders.AUTHORIZATION);
 
-        // 1) Si no hay Authorization Bearer => dejamos pasar
+        log.debug("[JWT] {} {} Authorization={}",
+                request.getMethod(),
+                request.getRequestURI(),
+                authHeader == null ? "null" : (authHeader.length() > 25 ? authHeader.substring(0, 25) + "..." : authHeader)
+        );
+
         if (authHeader == null || !authHeader.startsWith("Bearer ")) {
             filterChain.doFilter(request, response);
             return;
         }
 
-        try {
-            // 2) Extraer token y username
-            final String token = authHeader.substring(7);
-            final String username = jwtService.extractUsername(token);
+        final String token = authHeader.substring(7);
 
-            // 3) Si ya hay auth en el contexto, no lo sobrescribimos
+        try {
+            final String username = jwtService.extractUsername(token);
+            log.debug("[JWT] extracted username={}", username);
+
             if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
 
-                // 4) Cargar UserDetails (aquí vienen ROLE_ADMIN/ROLE_USER desde BD)
                 UserDetails userDetails = userDetailsService.loadUserByUsername(username);
 
-                // 5) Validar token y autenticar
-                if (jwtService.valid(token)) {
+                boolean valid = jwtService.valid(token);
+                log.debug("[JWT] valid={} user={} authorities={}",
+                        valid, username, userDetails.getAuthorities()
+                );
+
+                if (valid) {
                     UsernamePasswordAuthenticationToken authentication =
                             new UsernamePasswordAuthenticationToken(
                                     userDetails,
@@ -57,20 +67,15 @@ public class JwtAuthFilter extends OncePerRequestFilter {
                                     userDetails.getAuthorities()
                             );
 
-                    authentication.setDetails(
-                            new WebAuthenticationDetailsSource().buildDetails(request)
-                    );
-
+                    authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
                     SecurityContextHolder.getContext().setAuthentication(authentication);
-                    //borrar debug
-                    System.out.println("AUTH user=" + username + " authorities=" + userDetails.getAuthorities());
-
+                    log.debug("[JWT] AUTH OK user={}", username);
                 }
             }
 
         } catch (Exception ex) {
-            // Importante: si el token está mal/expirado/no parsea,
-            // no rompemos la request; simplemente seguimos sin autenticar
+            // Aquí está la clave: si peta, lo queremos VER en log
+            log.debug("[JWT] ERROR parsing/validating token: {}", ex.getMessage(), ex);
             SecurityContextHolder.clearContext();
         }
 

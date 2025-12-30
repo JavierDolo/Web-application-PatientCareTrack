@@ -1,7 +1,15 @@
 package patientcaretrackbackend.patients.domain.port;
 
 import patientcaretrackbackend.patients.domain.model.Alert;
-import patientcaretrackbackend.shared.persistence.CrudRepositoryPort;
+import patientcaretrackbackend.patients.domain.model.AlertStatus;
 
-public interface AlertRepository extends CrudRepositoryPort<Alert, Long> {
+import java.util.List;
+import java.util.Optional;
+
+public interface AlertRepository {
+    Alert save(Alert alert);
+    Optional<Alert> findById(Long id);
+    Optional<Alert> findByDedupeKey(String key);
+    List<Alert> findOpen();
+    List<Alert> findByStatus(AlertStatus status);
 }
