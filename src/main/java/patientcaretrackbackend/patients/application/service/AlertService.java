@@ -33,4 +33,9 @@ public class AlertService implements AlertUseCase {
         alert.setResolvedAt(Instant.now());
         alertRepository.save(alert);
     }
+    @Override
+    public long openCount() {
+        return alertRepository.countOpen();
+    }
+
 }

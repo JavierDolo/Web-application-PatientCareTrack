@@ -12,7 +12,11 @@ public interface AlertJpaRepository extends JpaRepository<AlertEntity, Long> {
 
     Optional<AlertEntity> findByDedupeKey(String dedupeKey);
 
+    boolean existsByDedupeKey(String dedupeKey);
+
     List<AlertEntity> findByStatusOrderByCreatedAtDesc(AlertStatus status);
 
     List<AlertEntity> findByPacienteIdAndTypeAndStatus(Long pacienteId, AlertType type, AlertStatus status);
+
+    long countByStatus(AlertStatus status);
 }

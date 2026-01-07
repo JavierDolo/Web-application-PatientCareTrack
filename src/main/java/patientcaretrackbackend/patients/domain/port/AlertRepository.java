@@ -10,6 +10,11 @@ public interface AlertRepository {
     Alert save(Alert alert);
     Optional<Alert> findById(Long id);
     Optional<Alert> findByDedupeKey(String key);
+
+    boolean existsByDedupeKey(String key);
+
     List<Alert> findOpen();
     List<Alert> findByStatus(AlertStatus status);
+
+    long countOpen();
 }

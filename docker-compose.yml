@@ -1,5 +1,3 @@
-version: "3.9"
-
 services:
   mysql:
     image: mysql:8.0
@@ -14,6 +12,21 @@ services:
       - "3307:3306"
     volumes:
       - mysql_data:/var/lib/mysql
+
+  backend:
+    build: .
+    container_name: patientcare-backend
+    restart: unless-stopped
+    depends_on:
+      - mysql
+    ports:
+      - "8080:8080"
+    environment:
+      # Ajusta según tu config real:
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/patientcare?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
+      SPRING_DATASOURCE_USERNAME: patient
+      SPRING_DATASOURCE_PASSWORD: patientpass
+      SPRING_JPA_HIBERNATE_DDL_AUTO: update
 
 volumes:
   mysql_data:

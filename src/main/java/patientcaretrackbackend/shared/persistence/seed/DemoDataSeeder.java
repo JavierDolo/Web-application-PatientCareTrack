@@ -33,14 +33,15 @@ public class DemoDataSeeder implements CommandLineRunner {
         User user1 = userRepository.findByUsername("user1")
                 .orElseGet(() -> userRepository.save(User.builder()
                         .username("user1")
-                        .passwordHash(passwordEncoder.encode("User1_1234"))
+                        .passwordHash(passwordEncoder.encode("1234"))
                         .role(Role.USER)
                         .build()));
 
         User user2 = userRepository.findByUsername("user2")
                 .orElseGet(() -> userRepository.save(User.builder()
                         .username("user2")
-                        .passwordHash(passwordEncoder.encode("User2_1234"))
+                        .passwordHash(passwordEncoder.encode("1234"))
+                        //.passwordHash(passwordEncoder.encode("User2_1234"))
                         .role(Role.USER)
                         .build()));
 

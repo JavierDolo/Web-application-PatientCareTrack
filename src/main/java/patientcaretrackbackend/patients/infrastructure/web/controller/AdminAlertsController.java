@@ -28,4 +28,9 @@ public class AdminAlertsController {
         alertUseCase.resolve(id);
         return ResponseEntity.noContent().build();
     }
+    @GetMapping("/count")
+    public java.util.Map<String, Long> count() {
+        return java.util.Map.of("openCount", alertUseCase.openCount());
+    }
+
 }

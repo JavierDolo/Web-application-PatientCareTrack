@@ -44,4 +44,14 @@ public class AlertRepositoryAdapter implements AlertRepository {
         return repo.findByStatusOrderByCreatedAtDesc(status)
                 .stream().map(mapper::toDomain).toList();
     }
+    @Override
+    public boolean existsByDedupeKey(String key) {
+        return repo.existsByDedupeKey(key);
+    }
+
+    @Override
+    public long countOpen() {
+        return repo.countByStatus(AlertStatus.OPEN);
+    }
+
 }
