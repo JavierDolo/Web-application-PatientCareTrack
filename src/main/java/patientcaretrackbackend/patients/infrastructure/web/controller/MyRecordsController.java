@@ -10,11 +10,7 @@ import patientcaretrackbackend.patients.application.usecase.PacienteUseCase;
 import patientcaretrackbackend.patients.application.usecase.RegistroUseCase;
 import patientcaretrackbackend.patients.domain.model.Registro;
 import patientcaretrackbackend.patients.domain.model.TipoRegistro;
-import patientcaretrackbackend.patients.infrastructure.web.dto.records.RegistroAseoRequest;
-import patientcaretrackbackend.patients.infrastructure.web.dto.records.RegistroBaseRequest;
-import patientcaretrackbackend.patients.infrastructure.web.dto.records.RegistroComidaRequest;
-import patientcaretrackbackend.patients.infrastructure.web.dto.records.RegistroDeposicionRequest;
-import patientcaretrackbackend.patients.infrastructure.web.dto.records.RegistroLiquidosRequest;
+import patientcaretrackbackend.patients.infrastructure.web.dto.records.*;
 import patientcaretrackbackend.registry.domain.port.UserRepository;
 import patientcaretrackbackend.shared.exception.NotFoundException;
 
@@ -69,10 +65,15 @@ public class MyRecordsController {
         } else if (r instanceof RegistroDeposicionRequest dep) {
             b.hizoDeposicion(dep.hizoDeposicion());
             b.deposicionCalidad(dep.deposicionCalidad());
-        } else if (r instanceof RegistroLiquidosRequest liq) {
+        }
+        else if (r instanceof RegistroLiquidosRequest liq) {
             b.liquidosMl(liq.liquidosMl());
-        } else if (r instanceof RegistroAseoRequest aseo) {
+        }
+        else if (r instanceof RegistroAseoRequest aseo) {
             b.aseoTipo(aseo.aseoTipo());
+        }
+        else if (r instanceof RegistroIncidenciaRequest inc) {
+            b.notificarIncidencia(Boolean.TRUE);
         }
 
         return b.build();

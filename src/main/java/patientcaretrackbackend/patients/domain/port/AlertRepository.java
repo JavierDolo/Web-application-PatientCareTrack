@@ -15,6 +15,8 @@ public interface AlertRepository {
 
     List<Alert> findOpen();
     List<Alert> findByStatus(AlertStatus status);
+    List<Alert> findAllSorted();
+
 
     long countOpen();
 }

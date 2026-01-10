@@ -2,6 +2,7 @@ package patientcaretrackbackend.patients.infrastructure.web.dto.records;
 
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import io.swagger.v3.oas.annotations.media.Schema;
 import patientcaretrackbackend.patients.domain.model.TipoRegistro;
 
 @JsonTypeInfo(
@@ -16,8 +17,19 @@ import patientcaretrackbackend.patients.domain.model.TipoRegistro;
         @JsonSubTypes.Type(value = RegistroComidaRequest.class, name = "CENA"),
         @JsonSubTypes.Type(value = RegistroDeposicionRequest.class, name = "DEPOSICION"),
         @JsonSubTypes.Type(value = RegistroLiquidosRequest.class, name = "LIQUIDOS"),
-        @JsonSubTypes.Type(value = RegistroAseoRequest.class, name = "ASEO")
+        @JsonSubTypes.Type(value = RegistroAseoRequest.class, name = "ASEO"),
+        @JsonSubTypes.Type(value = RegistroIncidenciaRequest.class, name = "INCIDENCIA") // ✅ NUEVO
 })
+@Schema(
+        description = "Request base para registros diarios. Se selecciona el tipo por el campo 'tipo'.",
+        oneOf = {
+                RegistroComidaRequest.class,
+                RegistroDeposicionRequest.class,
+                RegistroLiquidosRequest.class,
+                RegistroAseoRequest.class,
+                RegistroIncidenciaRequest.class
+        }
+)
 public interface RegistroBaseRequest {
     TipoRegistro tipo();
     String comentario();

@@ -53,5 +53,11 @@ public class AlertRepositoryAdapter implements AlertRepository {
     public long countOpen() {
         return repo.countByStatus(AlertStatus.OPEN);
     }
+    @Override
+    public List<Alert> findAllSorted() {
+        return repo.findAllByOrderByCreatedAtDesc()
+                .stream().map(mapper::toDomain).toList();
+    }
+
 
 }

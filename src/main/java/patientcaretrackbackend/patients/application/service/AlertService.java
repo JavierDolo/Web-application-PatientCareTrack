@@ -37,5 +37,10 @@ public class AlertService implements AlertUseCase {
     public long openCount() {
         return alertRepository.countOpen();
     }
+    @Override
+    public List<Alert> all() {
+        return alertRepository.findAllSorted();
+    }
+
 
 }

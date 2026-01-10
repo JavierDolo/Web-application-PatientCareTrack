@@ -32,5 +32,10 @@ public class AdminAlertsController {
     public java.util.Map<String, Long> count() {
         return java.util.Map.of("openCount", alertUseCase.openCount());
     }
+    @GetMapping("/all")
+    public List<Alert> all() {
+        return alertUseCase.all();
+    }
+
 
 }
