@@ -15,57 +15,66 @@ import java.util.List;
 @RequiredArgsConstructor
 public class NoMealsAlertEvaluator implements AlertEvaluationUseCase {
 
+    private static final ZoneId ZONE = ZoneId.of("Europe/Madrid");
+
     private final PacienteRepository pacienteRepository;
     private final RegistroRepository registroRepository;
     private final AlertRepository alertRepository;
 
+    /**
+     * Evaluates NO_MEALS for all patients for the given date (Europe/Madrid),
+     * creates OPEN alerts with dedupe, and returns how many were created.
+     */
     @Override
-    public void evaluateNoMealsForDate(LocalDate date) {
+    public int evaluateNoMealsForDate(LocalDate date) {
 
-        Instant from = date.atStartOfDay(ZoneId.systemDefault()).toInstant();
-        Instant to = date.plusDays(1).atStartOfDay(ZoneId.systemDefault()).toInstant();
+        Instant from = date.atStartOfDay(ZONE).toInstant();
+        Instant to = date.plusDays(1).atStartOfDay(ZONE).toInstant();
 
         var pacientes = pacienteRepository.findAll();
+        int created = 0;
 
         for (var p : pacientes) {
-            List<Registro> regs = registroRepository.findByPacienteIdAndCreatedAtBetween(p.getId(), from, to);
 
-            boolean anyMealDone = regs.stream().anyMatch(this::isMealDone);
+            List<Registro> regs = registroRepository
+                    .findByPacienteIdAndCreatedAtBetween(p.getId(), from, to);
 
-            if (!anyMealDone) {
-                createNoMealsAlert(p.getId(), date);
+            boolean breakfastDone = regs.stream().anyMatch(r -> Boolean.TRUE.equals(r.getHizoDesayuno()));
+            boolean lunchDone     = regs.stream().anyMatch(r -> Boolean.TRUE.equals(r.getHizoComida()));
+            boolean dinnerDone    = regs.stream().anyMatch(r -> Boolean.TRUE.equals(r.getHizoCena()));
+
+            if (!breakfastDone && !lunchDone && !dinnerDone) {
+                if (createNoMealsAlert(p, date)) {
+                    created++;
+                }
             }
         }
+
+        return created;
     }
 
-    private boolean isMealDone(Registro r) {
-        if (r.getTipo() == null) return false;
+    /**
+     * Returns true if created, false if already existed (dedupe).
+     */
+    private boolean createNoMealsAlert(Paciente paciente, LocalDate date) {
+        String dedupeKey = "NO_MEALS:" + paciente.getId() + ":" + date;
 
-        return switch (r.getTipo()) {
-            case DESAYUNO -> Boolean.TRUE.equals(r.getHizoDesayuno());
-            case COMIDA -> Boolean.TRUE.equals(r.getHizoComida());
-            case CENA -> Boolean.TRUE.equals(r.getHizoCena());
-            default -> false;
-        };
-    }
+        if (alertRepository.findByDedupeKey(dedupeKey).isPresent()) return false;
 
-    private void createNoMealsAlert(Long pacienteId, LocalDate date) {
-        String dedupeKey = "NO_MEALS:" + pacienteId + ":" + date;
-
-        // Evitar duplicados
-        if (alertRepository.findByDedupeKey(dedupeKey).isPresent()) return;
+        String patientName = paciente.getNombre() == null ? ("#" + paciente.getId()) : paciente.getNombre();
 
         Alert alert = Alert.builder()
                 .type(AlertType.NO_MEALS)
                 .status(AlertStatus.OPEN)
-                .pacienteId(pacienteId)
+                .pacienteId(paciente.getId())
                 .createdByUserId(null)
-                .message("No hay comidas registradas (DESAYUNO/COMIDA/CENA) para el día " + date)
                 .forDate(date)
                 .dedupeKey(dedupeKey)
+                .message("NO_MEALS: No meals recorded for patient '" + patientName + "' on " + date)
                 .createdAt(Instant.now())
                 .build();
 
         alertRepository.save(alert);
+        return true;
     }
 }
